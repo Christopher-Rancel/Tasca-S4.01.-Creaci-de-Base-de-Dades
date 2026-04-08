@@ -1,46 +1,50 @@
-# Nivell 2
+# Nivell 3
 
 ## Creació de la taula
 
 ### Enunciat
 
-Crea una nova taula que reflecteixi l'estat de les targetes de crèdit basat en si les tres últimes transaccions han estat declinades aleshores és inactiu, si almenys una no és rebutjada aleshores és actiu.
+Crea una taula amb la qual puguem unir les dades del nou arxiu products.csv amb la base de dades creada, tenint en compte que des de transaction tens product_ids.
 
 ---
 
 ### Descripció
 
-En aquesta part es crea una taula anomenada `card_status` que permet determinar l’estat de cada targeta de crèdit en funció de les seves últimes tres transaccions.
+En aquesta part es crea una taula intermèdia anomenada `transaction_products` que permet relacionar les transaccions amb els productes.
 
-Per fer-ho, es fa ús de funcions de finestra (`ROW_NUMBER()`) per ordenar les transaccions per cada targeta segons la data i seleccionar les més recents.
-
-A partir d’aquestes dades, es classifica cada targeta com a `ACTIVE` o `INACTIVE`.
+Aquesta taula resol la relació de molts a molts (N:M) entre `transaction` i `products`, ja que una transacció pot tenir múltiples productes.
 
 ---
 
 ### Resolució
 
 ```sql
-CREATE TABLE card_status AS
-WITH ranked_transactions AS (
-    SELECT
-        t.card_id,
-        t.declined,
-        ROW_NUMBER() OVER (
-            PARTITION BY t.card_id
-            ORDER BY t.timestamp DESC
-        ) AS rn
-    FROM transaction t
-)
-SELECT
-    card_id,
-    CASE
-        WHEN SUM(declined) = 3 THEN 'INACTIVE'
-        ELSE 'ACTIVE'
-    END AS status
-FROM ranked_transactions
-WHERE rn <= 3
-GROUP BY card_id;
+CREATE TABLE transaction_products (
+    transaction_id VARCHAR(50),
+    product_id INT,
+    PRIMARY KEY (transaction_id, product_id),
+    FOREIGN KEY (transaction_id) REFERENCES transaction(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+```
+
+---
+
+## Inserció de dades
+
+```sql
+USE transactions;
+
+INSERT INTO transaction_products (transaction_id, product_id) VALUES
+('00043A49-2949-494B-A5DD-A5BAE3BB19DD', 16),
+('00043A49-2949-494B-A5DD-A5BAE3BB19DD', 26),
+('00043A49-2949-494B-A5DD-A5BAE3BB19DD', 97),
+('00043A49-2949-494B-A5DD-A5BAE3BB19DD', 87),
+('000447FE-B650-4DCF-85DE-C7ED0EE1CAAD', 66),
+('000447FE-B650-4DCF-85DE-C7ED0EE1CAAD', 69),
+('000447FE-B650-4DCF-85DE-C7ED0EE1CAAD', 87),
+('000481C3-1C26-4FEF-83A0-4CD0EB004BBD', 72),
+('00051AA4-9CBE-4268-B070-C38062A1B3E2', 18);
 ```
 
 ---
@@ -49,13 +53,15 @@ GROUP BY card_id;
 
 ### Enunciat
 
-Quantes targetes estan actives?
+Necessitem conèixer el nombre de vegades que s'ha venut cada producte.
 
 ---
 
 ### Descripció
 
-En aquest exercici es fa una consulta sobre la taula `card_status` per comptar el nombre de targetes que tenen estat `ACTIVE`.
+En aquest exercici es calcula el nombre de vegades que s'ha venut cada producte utilitzant la taula intermèdia `transaction_products`.
+
+Es relaciona amb la taula `products` per obtenir el nom del producte i es fa un recompte del nombre de vendes.
 
 ---
 
@@ -64,13 +70,17 @@ En aquest exercici es fa una consulta sobre la taula `card_status` per comptar e
 ```sql
 USE transactions;
 
-SELECT COUNT(*) AS active_cards
-FROM card_status
-WHERE status = 'ACTIVE';
+SELECT
+    p.id,
+    p.product_name,
+    COUNT(*) AS vegades_venut
+FROM transaction_products tp
+JOIN products p ON tp.product_id = p.id
+GROUP BY p.id, p.product_name;
 ```
 
 ---
 
 ## Conclusió
 
-S’ha creat una taula derivada que permet classificar les targetes segons el seu comportament recent i s’ha pogut obtenir el nombre de targetes actives de forma senzilla.
+S’ha creat una taula intermèdia per gestionar correctament la relació entre transaccions i productes, i s’ha pogut calcular el nombre de vendes de cada producte de forma eficient.
