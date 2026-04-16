@@ -1,81 +1,74 @@
-# Tasca-S5.01.-Consultes-amb-MongoDB
+# Tasca S4.01 - Creació de base de dades
 
 ## Descripció
 
-En aquest sprint es treballa la realització de consultes sobre bases de dades NoSQL utilitzant MongoDB.
+En aquest sprint es treballa la creació d’una base de dades relacional a partir de diferents arxius CSV utilitzant MySQL.
 
-L’activitat consisteix en explorar diferents col·leccions, aplicar filtres, utilitzar operadors i realitzar consultes per extreure informació rellevant a partir de les dades.
+L’activitat consisteix en dissenyar un model de dades estructurat, crear les taules necessàries, importar les dades i realitzar consultes per extreure informació rellevant.
 
-Es treballa amb una base de dades relacionada amb una aplicació d’entreteniment cinematogràfic.
+Es treballa amb una base de dades que conté informació sobre usuaris, transaccions, targetes de crèdit, empreses i productes.
 
 ---
 
 ## Estructura de la base de dades
 
-El projecte treballa amb les següents col·leccions:
+El projecte treballa amb les següents taules:
 
-- `users` → informació d’usuaris (nom, email i contrasenya)  
-- `theaters` → informació de cinemes (ubicació i coordenades geogràfiques)  
-- `sessions` → sessions d’usuari i autenticació  
-- `movies` → informació de pel·lícules (gèneres, any, directors, puntuacions i premis)  
-- `comments` → comentaris d’usuaris sobre pel·lícules  
+- `data_user` → informació dels usuaris  
+- `transaction` → registres de transaccions  
+- `credit_card` → informació de targetes de crèdit  
+- `company` → informació de les empreses  
+- `products` → informació dels productes  
+- `transaction_products` → relació entre transaccions i productes  
 
-Les col·leccions es relacionen mitjançant identificadors com `user_id` i `movie_id`.
+Les taules estan relacionades mitjançant claus primàries i claus foranes:
+
+- `transaction.user_id → data_user.id`  
+- `transaction.card_id → credit_card.id`  
+- `transaction.business_id → company.company_id`  
+- `credit_card.user_id → data_user.id`  
+- `transaction_products.transaction_id → transaction.id`  
+- `transaction_products.product_id → products.id`  
 
 ---
 
 ## Nivell 1
 
-### Exercici 0
-Creació de la base de dades i importació de les col·leccions a partir dels arxius JSON proporcionats.
-
 ### Exercici 1
-Realització de consultes bàsiques per obtenir informació general de la base de dades:
-
-- Mostra dels primers comentaris  
-- Comptatge d’usuaris  
-- Filtrat de cinemes per estat  
-- Obtenció del primer usuari registrat  
-- Filtrat de pel·lícules per gènere  
+Creació de la base de dades, definició de les taules i importació de dades des de fitxers CSV.
 
 ### Exercici 2
-Consulta de pel·lícules produïdes en 1932 amb condicions sobre el gènere i la llengua.
-
-### Exercici 3
-Consulta de pel·lícules dels Estats Units amb un rang de premis i produïdes dins d’un interval d’anys.
+Consulta per obtenir la mitjana d’import (`amount`) per IBAN de les targetes de crèdit d’una empresa concreta.
 
 ---
 
 ## Nivell 2
 
 ### Exercici 1
-Comptatge de comentaris realitzats per usuaris amb un domini de correu electrònic específic.
-
-### Exercici 2
-Anàlisi dels cinemes agrupats per codi postal dins de l’estat Washington D.C. utilitzant agregacions.
+Creació d’una taula derivada per determinar l’estat de les targetes de crèdit segons les seves últimes transaccions i càlcul del nombre de targetes actives.
 
 ---
 
 ## Nivell 3
 
 ### Exercici 1
-Filtrat de pel·lícules segons director i puntuació IMDb dins d’un rang determinat.
+Creació d’una taula intermèdia per relacionar transaccions i productes a partir del camp `product_ids`.
 
 ### Exercici 2
-Visualització de la ubicació dels teatres en un mapa utilitzant dades geogràfiques.
+Consulta per calcular el nombre de vegades que s’ha venut cada producte.
 
 ---
 
 ## Objectiu del projecte
 
-L’objectiu d’aquesta activitat és consolidar els coneixements sobre consultes en MongoDB, incloent:
+L’objectiu d’aquesta activitat és consolidar els coneixements sobre creació i explotació de bases de dades relacionals, incloent:
 
-- Consultes bàsiques (`find`)  
-- Ús d’operadors (`$gte`, `$lte`, `$or`)  
-- Treball amb arrays i camps anidats  
-- Comptatge de documents  
-- Aggregations (`$match`, `$group`)  
-- Ús d’expressions regulars  
-- Visualització de dades geogràfiques  
+- Disseny de models de dades  
+- Creació de taules (`CREATE TABLE`)  
+- Importació de dades (`LOAD DATA INFILE`)  
+- Normalització (1NF)  
+- Gestió de claus foranes i integritat referencial  
+- Consultes amb `JOIN`  
+- Subconsultes i funcions d’agregació (`COUNT`, `AVG`)  
 
-Aquest projecte forma part del procés d’aprenentatge en bases de dades NoSQL i anàlisi de dades.
+Aquest projecte forma part del procés d’aprenentatge en anàlisi de dades i bases de dades relacionals.
